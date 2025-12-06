@@ -55,10 +55,10 @@ export default function Projects() {
 
     try {
       setUploading(true);
-      const formData = new FormData();
-      formData.append('image', file);
+      const uploadFormData = new FormData();
+      uploadFormData.append('image', file);
 
-      const response = await adminUploadAPI.uploadSingle(formData);
+      const response = await adminUploadAPI.uploadSingle(uploadFormData);
       setFormData({ ...formData, imageUrl: response.data.secure_url });
       alert('Image uploaded successfully!');
     } catch (error: any) {

@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { adminProfileAPI, adminUploadAPI } from '../../lib/adminApi';
-import { useAuth } from '../../contexts/AuthContext';
 
 export default function Profile() {
-  const { admin: currentAdmin } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
