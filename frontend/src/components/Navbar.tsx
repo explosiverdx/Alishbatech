@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import '../styles/Navbar.css';
-import AlishbaTechLogo from '../assets/Alishbatech_logo.png';
+import { AlishbaTechLogo } from '../constants/assets';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

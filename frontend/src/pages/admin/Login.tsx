@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/admin/Login.css';
-import AlishbaTechLogo from '../../assets/Alishbatech_logo.png';
+import { AlishbaTechLogo } from '../../constants/assets';
 
 export default function Login() {
   const [username, setUsername] = useState('');

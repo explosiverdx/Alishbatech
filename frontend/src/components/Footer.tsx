@@ -1,4 +1,5 @@
 import '../styles/Footer.css';
+import { AlishbaTechLogo } from '../constants/assets';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -11,7 +12,7 @@ export default function Footer() {
           <div className="footer-brand">
             <div className="footer-logo">
               <img 
-                src="/src/assets/Alishbatech_logo.png" 
+                src={AlishbaTechLogo}
                 alt="AlishbaTech Logo"
               />
               <span className="footer-logo-text">AlishbaTech</span>

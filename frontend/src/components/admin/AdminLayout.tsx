@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/admin/Layout.css';
-import AlishbaTechLogo from '../../assets/Alishbatech_logo.png';
+import { AlishbaTechLogo } from '../../constants/assets';
 
 interface AdminLayoutProps {
   children: React.ReactNode;

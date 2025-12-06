@@ -150,7 +150,6 @@ export default function Contact() {
                   <div className="info-content">
                     <h4>Email</h4>
                     <p>info@alishbatech.com</p>
-                    <p>support@alishbatech.com</p>
                   </div>
                 </div>
 
@@ -163,7 +162,6 @@ export default function Contact() {
                   <div className="info-content">
                     <h4>Phone</h4>
                     <p>+91 9648832796</p>
-                    <p>+1 (555) 987-6543</p>
                   </div>
                 </div>
 
