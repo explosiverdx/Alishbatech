@@ -1,0 +1,289 @@
+/* Admin Dashboard Styles */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Stats Cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.stat-card {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: box-shadow 0.3s;
+}
+
+.stat-card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .stat-card {
+    background: #1f2937;
+  }
+}
+
+.stat-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.stat-icon.blue {
+  background: #dbeafe;
+}
+
+.stat-icon.purple {
+  background: #f3e8ff;
+}
+
+.stat-icon.green {
+  background: #d1fae5;
+}
+
+.stat-icon.orange {
+  background: #fed7aa;
+}
+
+@media (prefers-color-scheme: dark) {
+  .stat-icon.blue {
+    background: rgba(59, 130, 246, 0.3);
+  }
+  
+  .stat-icon.purple {
+    background: rgba(147, 51, 234, 0.3);
+  }
+  
+  .stat-icon.green {
+    background: rgba(16, 185, 129, 0.3);
+  }
+  
+  .stat-icon.orange {
+    background: rgba(251, 146, 60, 0.3);
+  }
+}
+
+.stat-title {
+  color: #4b5563;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .stat-title {
+    color: #9ca3af;
+  }
+}
+
+.stat-value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .stat-value {
+    color: white;
+  }
+}
+
+.stat-change {
+  font-size: 0.875rem;
+}
+
+.stat-change.blue {
+  color: #3b82f6;
+}
+
+.stat-change.purple {
+  color: #9333ea;
+}
+
+.stat-change.green {
+  color: #10b981;
+}
+
+.stat-change.orange {
+  color: #f59e0b;
+}
+
+@media (prefers-color-scheme: dark) {
+  .stat-change.blue {
+    color: #60a5fa;
+  }
+  
+  .stat-change.purple {
+    color: #a78bfa;
+  }
+  
+  .stat-change.green {
+    color: #34d399;
+  }
+  
+  .stat-change.orange {
+    color: #fbbf24;
+  }
+}
+
+/* Recent Contacts Table */
+.recent-contacts {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .recent-contacts {
+    background: #1f2937;
+  }
+}
+
+.table-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .table-title {
+    color: white;
+  }
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  thead tr {
+    border-bottom-color: #374151;
+  }
+}
+
+th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  th {
+    color: #d1d5db;
+  }
+}
+
+tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.2s;
+}
+
+tbody tr:hover {
+  background: #f9fafb;
+}
+
+@media (prefers-color-scheme: dark) {
+  tbody tr {
+    border-bottom-color: #374151;
+  }
+  
+  tbody tr:hover {
+    background: rgba(55, 65, 81, 0.5);
+  }
+}
+
+td {
+  padding: 0.75rem 1rem;
+}
+
+td.primary {
+  color: #111827;
+}
+
+td.secondary {
+  color: #4b5563;
+}
+
+td.tertiary {
+  color: #6b7280;
+}
+
+@media (prefers-color-scheme: dark) {
+  td.primary {
+    color: white;
+  }
+  
+  td.secondary {
+    color: #9ca3af;
+  }
+  
+  td.tertiary {
+    color: #9ca3af;
+  }
+}
+
+.no-data {
+  color: #6b7280;
+}
+
+@media (prefers-color-scheme: dark) {
+  .no-data {
+    color: #9ca3af;
+  }
+}
+
+/* Loading Spinner */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 16rem;
+}
+
+.loading-spinner {
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  animation: spin 1s linear infinite;
+}
+
