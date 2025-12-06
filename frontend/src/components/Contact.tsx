@@ -176,8 +176,7 @@ export default function Contact() {
                   </div>
                   <div className="info-content">
                     <h4>Office</h4>
-                    <p>123 Tech Street</p>
-                    <p>Innovation City, IC 12345</p>
+                    <p>202, Shelter Grand-1, A-Block, Indira Nagar, Lucknow, 226016, UP</p>
                   </div>
                 </div>
               </div>
