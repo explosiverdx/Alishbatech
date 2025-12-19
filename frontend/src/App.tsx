@@ -10,6 +10,8 @@ import Projects from './pages/admin/Projects';
 import Subscribers from './pages/admin/Subscribers';
 import Admins from './pages/admin/Admins';
 import Profile from './pages/admin/Profile';
+import Blogs from './pages/admin/Blogs';
+import Blog from './pages/Blog';
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<Blog />} />
           
           {/* Admin Login - Public */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -79,6 +83,16 @@ function App() {
               <ProtectedRoute>
                 <AdminLayout>
                   <Profile />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/blogs"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <Blogs />
                 </AdminLayout>
               </ProtectedRoute>
             }

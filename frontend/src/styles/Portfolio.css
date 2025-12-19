@@ -108,10 +108,14 @@
   padding: 2rem;
 }
 
-.project-image {
+.portfolio .project-image,
+.portfolio-section .project-image,
+.project-card .project-image {
   font-size: 4rem;
   margin-bottom: 1rem;
   transition: transform 0.3s;
+  background: white !important;
+  height: auto !important;
 }
 
 .project-card:hover .project-image {

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { adminProjectsAPI, adminUploadAPI } from '../../lib/adminApi';
+import '../../styles/admin/common.css';
+import '../../styles/admin/Dashboard.css';
 
 interface Project {
   _id?: string;
@@ -132,17 +134,17 @@ export default function Projects() {
   };
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Projects</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 className="table-title">Projects</h2>
         <button
           onClick={() => {
             resetForm();
             setEditingProject(null);
             setShowModal(true);
           }}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="admin-btn admin-btn-primary"
         >
           + Add Project
         </button>
@@ -150,64 +152,55 @@ export default function Projects() {
 
       {/* Projects Grid */}
       {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
         </div>
       ) : projects.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-12 text-center">
-          <p className="text-gray-500 dark:text-gray-400 mb-4">No projects yet</p>
-          <button
-            onClick={() => setShowModal(true)}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
+        <div className="recent-contacts" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p style={{ marginBottom: '1rem', color: 'inherit' }}>No projects yet</p>
+          <button onClick={() => setShowModal(true)} className="admin-btn admin-btn-primary">
             Create Your First Project
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="projects-grid">
           {projects.map((project) => (
-            <div
-              key={project._id}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-6xl">
+            <div key={project._id} className="project-card">
+              <div className="project-image">
                 {project.imageUrl ? (
-                  <img src={project.imageUrl} alt={project.title} className="w-full h-full object-cover" />
+                  <img src={project.imageUrl} alt={project.title} />
                 ) : (
                   project.image
                 )}
               </div>
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">{project.title}</h3>
+              <div className="project-content">
+                <div className="project-title-row">
+                  <h3 className="project-title">{project.title}</h3>
                   {project.featured && (
-                    <span className="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 text-xs font-semibold rounded">
-                      Featured
-                    </span>
+                    <span className="badge badge-yellow">Featured</span>
                   )}
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{project.category}</p>
-                <p className="text-gray-700 dark:text-gray-300 text-sm line-clamp-2 mb-4">{project.description}</p>
-                <div className="flex gap-2 mb-4 flex-wrap">
+                <p className="project-category">{project.category}</p>
+                <p className="project-description">{project.description}</p>
+                <div className="project-tags">
                   {project.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded"
-                    >
+                    <span key={index} className="project-tag">
                       {tag}
                     </span>
                   ))}
                 </div>
-                <div className="flex gap-2">
+                <div className="project-actions">
                   <button
                     onClick={() => handleEdit(project)}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                    className="admin-btn admin-btn-primary"
+                    style={{ flex: 1, fontSize: '0.875rem' }}
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => project._id && handleDelete(project._id)}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                    className="admin-btn admin-btn-danger"
+                    style={{ fontSize: '0.875rem' }}
                   >
                     Delete
                   </button>
@@ -220,10 +213,10 @@ export default function Projects() {
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2 className="modal-title">
                 {editingProject ? 'Edit Project' : 'Create Project'}
               </h2>
               <button
@@ -231,151 +224,141 @@ export default function Projects() {
                   setShowModal(false);
                   resetForm();
                 }}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                className="modal-close"
               >
                 ✕
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Category *
-                </label>
-                <input
-                  type="text"
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Description *
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  required
-                  rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Image Upload
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploading}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                />
-                {uploading && <p className="text-sm text-gray-500 mt-1">Uploading...</p>}
-                {formData.imageUrl && (
-                  <img src={formData.imageUrl} alt="Preview" className="mt-2 h-32 rounded-lg object-cover" />
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Tags
-                </label>
-                <div className="flex gap-2 mb-2">
+            <form onSubmit={handleSubmit} className="modal-body">
+              <div className="admin-form" style={{ gap: '1.5rem' }}>
+                <div className="admin-form-group">
+                  <label>Title *</label>
                   <input
                     type="text"
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                    placeholder="Add a tag and press Enter"
-                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    required
+                    className="admin-form-input"
                   />
+                </div>
+                <div className="admin-form-group">
+                  <label>Category *</label>
+                  <input
+                    type="text"
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    required
+                    className="admin-form-input"
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label>Description *</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    required
+                    rows={4}
+                    className="admin-form-textarea"
+                  />
+                </div>
+                <div className="admin-form-group">
+                  <label>Image Upload</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                    className="admin-form-input"
+                  />
+                  {uploading && <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'inherit' }}>Uploading...</p>}
+                  {formData.imageUrl && (
+                    <img src={formData.imageUrl} alt="Preview" style={{ marginTop: '0.5rem', height: '8rem', borderRadius: '0.5rem', objectFit: 'cover' }} />
+                  )}
+                </div>
+                <div className="admin-form-group">
+                  <label>Tags</label>
+                  <div className="tag-input-container">
+                    <input
+                      type="text"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                      placeholder="Add a tag and press Enter"
+                      className="admin-form-input"
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={addTag}
+                      className="admin-btn admin-btn-secondary"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  <div className="tag-list">
+                    {formData.tags.map((tag, index) => (
+                      <span key={index} className="tag-item">
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => removeTag(tag)}
+                          className="tag-remove"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="admin-form-group">
+                  <label>Link</label>
+                  <input
+                    type="url"
+                    value={formData.link}
+                    onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                    className="admin-form-input"
+                  />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={formData.featured}
+                      onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                      className="admin-form-checkbox"
+                    />
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Featured</span>
+                  </label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    className="admin-form-select"
+                    style={{ width: 'auto' }}
+                  >
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                    <option value="archived">Archived</option>
+                  </select>
+                </div>
+                <div style={{ display: 'flex', gap: '1rem', paddingTop: '1rem' }}>
+                  <button
+                    type="submit"
+                    className="admin-btn admin-btn-primary"
+                    style={{ flex: 1 }}
+                  >
+                    {editingProject ? 'Update' : 'Create'} Project
+                  </button>
                   <button
                     type="button"
-                    onClick={addTag}
-                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+                    onClick={() => {
+                      setShowModal(false);
+                      resetForm();
+                    }}
+                    className="admin-btn admin-btn-secondary"
                   >
-                    Add
+                    Cancel
                   </button>
                 </div>
-                <div className="flex gap-2 flex-wrap">
-                  {formData.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded-full text-sm flex items-center gap-2"
-                    >
-                      {tag}
-                      <button
-                        type="button"
-                        onClick={() => removeTag(tag)}
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800"
-                      >
-                        ✕
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Link
-                </label>
-                <input
-                  type="url"
-                  value={formData.link}
-                  onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.featured}
-                    onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                  />
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Featured</span>
-                </label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="active">Active</option>
-                  <option value="completed">Completed</option>
-                  <option value="archived">Archived</option>
-                </select>
-              </div>
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="submit"
-                  className="flex-1 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  {editingProject ? 'Update' : 'Create'} Project
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    resetForm();
-                  }}
-                  className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                >
-                  Cancel
-                </button>
               </div>
             </form>
           </div>
@@ -384,4 +367,3 @@ export default function Projects() {
     </div>
   );
 }
-

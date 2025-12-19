@@ -23,6 +23,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/admin/contacts', label: 'Contacts', icon: '📧' },
     { path: '/admin/projects', label: 'Projects', icon: '📁' },
+    { path: '/admin/blogs', label: 'Blogs', icon: '📝' },
     { path: '/admin/subscribers', label: 'Subscribers', icon: '📬' },
     ...(admin?.role === 'superadmin' ? [{ path: '/admin/admins', label: 'Admins', icon: '👥' }] : []),
   ];

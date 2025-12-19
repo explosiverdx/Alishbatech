@@ -12,6 +12,7 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-quill": "^2.0.0",
     "react-router-dom": "^7.9.6"
   },
   "devDependencies": {
@@ -28,5 +29,8 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5.4.2",
     "vite": "^7.2.6"
+  },
+  "overrides": {
+    "quill": "^2.0.3"
   }
 }

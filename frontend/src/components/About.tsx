@@ -1,12 +1,6 @@
 import '../styles/About.css';
 
 export default function About() {
-  const stats = [
-    { number: '100+', label: 'Projects Completed' },
-    { number: '50+', label: 'Happy Clients' },
-    { number: '5+', label: 'Years Experience' },
-    { number: '24/7', label: 'Support Available' },
-  ];
 
   const features = [
     {
@@ -42,14 +36,24 @@ export default function About() {
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="stats-grid">
-          {stats.map((stat, index) => (
-            <div key={index} className="stat-card">
-              <div className="stat-number">{stat.number}</div>
-              <div className="stat-label">{stat.label}</div>
-            </div>
-          ))}
+        {/* Detailed About Content */}
+        <div className="about-content">
+          <div className="about-text">
+            <p className="about-paragraph">
+              At <strong>AlishbaTech</strong>, we believe technology should empower businesses to reach their full potential. 
+              We're not just developers—we're your strategic partners in navigating the ever-evolving digital landscape.
+            </p>
+            <p className="about-paragraph">
+              Our expertise spans cutting-edge web applications, mobile solutions, cloud infrastructure, and AI-driven 
+              innovations. Whether you're a startup looking to make your mark or an established enterprise seeking 
+              digital transformation, we craft tailor-made solutions that align with your unique business objectives.
+            </p>
+            <p className="about-paragraph">
+              What sets us apart is our commitment to excellence, transparent communication, and a client-centric approach 
+              that ensures your vision becomes reality. We combine technical prowess with creative thinking to deliver 
+              solutions that don't just work—they thrive.
+            </p>
+          </div>
         </div>
 
         {/* Features */}

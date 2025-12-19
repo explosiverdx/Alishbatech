@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const Contact = require('../models/Contact');
 const Project = require('../models/Project');
 const Newsletter = require('../models/Newsletter');
+const Blog = require('../models/Blog');
 
 /**
  * Connect to MongoDB
@@ -32,6 +33,7 @@ async function saveContactSubmission(data) {
     const contact = new Contact({
       name: data.name,
       email: data.email,
+      phone: data.phone || '',
       subject: data.subject,
       message: data.message
     });
@@ -189,6 +191,177 @@ async function getNewsletterSubscribers() {
   }
 }
 
+/**
+ * Get all blogs from database
+ */
+async function getBlogs(filters = {}) {
+  try {
+    let query = {};
+    
+    // Only get published blogs if published filter is not explicitly set to false
+    // If published is false in filters, it means admin wants all blogs (don't filter)
+    if (filters.published !== false && filters.published !== 'false') {
+      query.published = true;
+    }
+    // If filters.published === false, don't add published filter (get all blogs)
+    
+    // Apply filters
+    if (filters.category) {
+      query.category = filters.category;
+    }
+    
+    if (filters.featured !== undefined) {
+      query.featured = filters.featured === 'true' || filters.featured === true;
+    }
+    
+    let blogsQuery = Blog.find(query).sort({ createdAt: -1 });
+    
+    // Apply limit if specified
+    if (filters.limit) {
+      blogsQuery = blogsQuery.limit(parseInt(filters.limit));
+    }
+    
+    const blogs = await blogsQuery.exec();
+    console.log(`✅ Retrieved ${blogs.length} blogs from database`);
+    return blogs;
+  } catch (error) {
+    console.error('❌ Error fetching blogs:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Get a single blog by ID or slug
+ */
+async function getBlogById(idOrSlug) {
+  try {
+    let blog = null;
+    
+    // Check if it's a valid MongoDB ObjectId (24 hex characters)
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(idOrSlug);
+    
+    if (isValidObjectId) {
+      // Try to find by ID first
+      blog = await Blog.findById(idOrSlug);
+    }
+    
+    // If not found by ID or not a valid ObjectId, try to find by slug
+    if (!blog) {
+      blog = await Blog.findOne({ slug: idOrSlug, published: true });
+    }
+    
+    // Only return if blog is published (for public routes)
+    if (blog && blog.published) {
+      // Increment views
+      blog.views = (blog.views || 0) + 1;
+      await blog.save();
+      return blog;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('❌ Error fetching blog:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Get a single blog by ID or slug (admin - includes unpublished)
+ */
+async function getBlogByIdAdmin(idOrSlug) {
+  try {
+    // Try to find by ID first, then by slug
+    let blog = await Blog.findById(idOrSlug);
+    if (!blog) {
+      blog = await Blog.findOne({ slug: idOrSlug });
+    }
+    return blog;
+  } catch (error) {
+    console.error('❌ Error fetching blog:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Create a new blog
+ */
+async function createBlog(data) {
+  try {
+    // Ensure slug is set if not provided
+    if (!data.slug || data.slug.trim() === '') {
+      if (data.title) {
+        data.slug = data.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '');
+        
+        if (!data.slug || data.slug.trim() === '') {
+          data.slug = 'blog-post-' + Date.now();
+        }
+      } else {
+        data.slug = 'blog-post-' + Date.now();
+      }
+    }
+    
+    // Handle duplicate slug by appending timestamp
+    let slug = data.slug;
+    let counter = 1;
+    let existingBlog = await Blog.findOne({ slug: slug });
+    
+    while (existingBlog) {
+      slug = `${data.slug}-${counter}`;
+      existingBlog = await Blog.findOne({ slug: slug });
+      counter++;
+    }
+    
+    data.slug = slug;
+    
+    const blog = new Blog(data);
+    const savedBlog = await blog.save();
+    console.log('✅ Blog created:', savedBlog._id);
+    return savedBlog;
+  } catch (error) {
+    console.error('❌ Error creating blog:', error.message);
+    // Handle duplicate key error
+    if (error.code === 11000) {
+      throw new Error('A blog with this slug already exists');
+    }
+    throw error;
+  }
+}
+
+/**
+ * Update a blog
+ */
+async function updateBlog(id, data) {
+  try {
+    const blog = await Blog.findByIdAndUpdate(
+      id,
+      { ...data, updatedAt: new Date() },
+      { new: true, runValidators: true }
+    );
+    console.log('✅ Blog updated:', id);
+    return blog;
+  } catch (error) {
+    console.error('❌ Error updating blog:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Delete a blog
+ */
+async function deleteBlog(id) {
+  try {
+    const blog = await Blog.findByIdAndDelete(id);
+    console.log('✅ Blog deleted:', id);
+    return blog;
+  } catch (error) {
+    console.error('❌ Error deleting blog:', error.message);
+    throw error;
+  }
+}
+
 module.exports = {
   connectDB,
   saveContactSubmission,
@@ -199,4 +372,10 @@ module.exports = {
   deleteProject,
   saveNewsletterSubscription,
   getNewsletterSubscribers,
+  getBlogs,
+  getBlogById,
+  getBlogByIdAdmin,
+  createBlog,
+  updateBlog,
+  deleteBlog,
 };

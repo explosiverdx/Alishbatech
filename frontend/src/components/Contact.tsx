@@ -5,6 +5,7 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     subject: '',
     message: '',
   });
@@ -12,10 +13,22 @@ export default function Contact() {
   const [status, setStatus] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const value = e.target.value;
+    
+    // For phone field, only allow digits and limit to 10 digits
+    if (e.target.name === 'phone') {
+      const digitsOnly = value.replace(/\D/g, ''); // Remove all non-digits
+      const limitedValue = digitsOnly.slice(0, 10); // Limit to 10 digits
+      setFormData({
+        ...formData,
+        [e.target.name]: limitedValue,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [e.target.name]: value,
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,7 +36,7 @@ export default function Contact() {
     setStatus('sending');
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
       const response = await fetch(`${API_URL}/contact`, {
         method: 'POST',
         headers: {
@@ -37,7 +50,7 @@ export default function Contact() {
       if (response.ok) {
         setStatus(data.message || 'Message sent successfully! We\'ll get back to you soon.');
         setTimeout(() => {
-          setFormData({ name: '', email: '', subject: '', message: '' });
+          setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
           setStatus('');
         }, 5000);
       } else {
@@ -88,6 +101,20 @@ export default function Contact() {
                   required
                   className="form-input"
                   placeholder="john@example.com"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="phone">Phone Number</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Enter your phone number"
+                  maxLength={10}
                 />
               </div>
 
@@ -153,30 +180,6 @@ export default function Contact() {
                   </div>
                 </div>
 
-                <div className="info-item">
-                  <div className="info-icon phone">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                  </div>
-                  <div className="info-content">
-                    <h4>Phone</h4>
-                    <p>+91 9648832796</p>
-                  </div>
-                </div>
-
-                <div className="info-item">
-                  <div className="info-icon location">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <div className="info-content">
-                    <h4>Office</h4>
-                    <p>202, Shelter Grand-1, A-Block, Indira Nagar, Lucknow, 226016, UP</p>
-                  </div>
-                </div>
               </div>
             </div>
 

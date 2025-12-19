@@ -14,6 +14,7 @@ const projectsRoutes = require('./routes/projects');
 const servicesRoutes = require('./routes/services');
 const newsletterRoutes = require('./routes/newsletter');
 const healthRoutes = require('./routes/health');
+const blogsRoutes = require('./routes/blogs');
 
 // Import admin routes
 const adminAuthRoutes = require('./routes/admin/auth');
@@ -24,9 +25,10 @@ const adminSubscribersRoutes = require('./routes/admin/subscribers');
 const adminUploadRoutes = require('./routes/admin/upload');
 const adminAdminsRoutes = require('./routes/admin/admins');
 const adminProfileRoutes = require('./routes/admin/profile');
+const adminBlogsRoutes = require('./routes/admin/blogs');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(helmet()); // Security headers
@@ -46,6 +48,7 @@ app.get('/', (req, res) => {
       projects: '/api/projects',
       services: '/api/services',
       newsletter: '/api/newsletter',
+      blogs: '/api/blogs',
     },
   });
 });
@@ -56,6 +59,7 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/projects', projectsRoutes);
 app.use('/api/services', servicesRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/blogs', blogsRoutes);
 
 // Admin Routes
 app.use('/api/admin/auth', adminAuthRoutes);
@@ -66,6 +70,7 @@ app.use('/api/admin/subscribers', adminSubscribersRoutes);
 app.use('/api/admin/upload', adminUploadRoutes);
 app.use('/api/admin/admins', adminAdminsRoutes);
 app.use('/api/admin/profile', adminProfileRoutes);
+app.use('/api/admin/blogs', adminBlogsRoutes);
 
 // 404 handler
 app.use((req, res) => {

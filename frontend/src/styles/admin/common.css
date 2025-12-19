@@ -339,3 +339,363 @@
   }
 }
 
+/* Form Inputs */
+.admin-form-input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: white;
+  color: #111827;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.admin-form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin-form-input {
+    background: #111827;
+    border-color: #374151;
+    color: white;
+  }
+}
+
+.admin-form-textarea {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: white;
+  color: #111827;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 6rem;
+  transition: all 0.2s;
+}
+
+.admin-form-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin-form-textarea {
+    background: #111827;
+    border-color: #374151;
+    color: white;
+  }
+}
+
+.admin-form-select {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: white;
+  color: #111827;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.admin-form-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin-form-select {
+    background: #111827;
+    border-color: #374151;
+    color: white;
+  }
+}
+
+.admin-form-checkbox {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #3b82f6;
+  cursor: pointer;
+}
+
+/* Project Grid */
+.projects-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .projects-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .projects-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.project-card {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+}
+
+.project-card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .project-card {
+    background: #1f2937;
+  }
+}
+
+.project-image {
+  height: 12rem;
+  background: linear-gradient(to bottom right, #3b82f6, #9333ea);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+}
+
+.project-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.project-content {
+  padding: 1.5rem;
+}
+
+.project-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.project-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .project-title {
+    color: white;
+  }
+}
+
+.project-category {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .project-category {
+    color: #9ca3af;
+  }
+}
+
+.project-description {
+  color: #374151;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+  .project-description {
+    color: #d1d5db;
+  }
+}
+
+.project-tags {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.project-tag {
+  padding: 0.25rem 0.5rem;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .project-tag {
+    background: #374151;
+    color: #d1d5db;
+  }
+}
+
+.project-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Tag Input */
+.tag-input-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tag-list {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.tag-item {
+  padding: 0.25rem 0.75rem;
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tag-item {
+    background: rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+  }
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.tag-remove:hover {
+  opacity: 0.7;
+}
+
+/* React Quill Editor Styles */
+.quill {
+  background: white;
+  border-radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .quill {
+    background: #1f2937;
+  }
+}
+
+.quill .ql-container {
+  font-size: 1rem;
+  min-height: 250px;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.quill .ql-editor {
+  min-height: 250px;
+  color: #374151;
+}
+
+@media (prefers-color-scheme: dark) {
+  .quill .ql-editor {
+    color: #d1d5db;
+  }
+}
+
+.quill .ql-toolbar {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .quill .ql-toolbar {
+    border-color: #374151;
+    background: #111827;
+  }
+}
+
+.quill .ql-container {
+  border: 1px solid #e5e7eb;
+  border-top: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .quill .ql-container {
+    border-color: #374151;
+  }
+}
+
+.quill .ql-stroke {
+  stroke: #6b7280;
+}
+
+@media (prefers-color-scheme: dark) {
+  .quill .ql-stroke {
+    stroke: #9ca3af;
+  }
+}
+
+.quill .ql-fill {
+  fill: #6b7280;
+}
+
+@media (prefers-color-scheme: dark) {
+  .quill .ql-fill {
+    fill: #9ca3af;
+  }
+}
+
+.quill .ql-picker-label {
+  color: #6b7280;
+}
+
+@media (prefers-color-scheme: dark) {
+  .quill .ql-picker-label {
+    color: #9ca3af;
+  }
+}
+
+.quill .ql-picker-options {
+  background: white;
+  border: 1px solid #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .quill .ql-picker-options {
+    background: #1f2937;
+    border-color: #374151;
+  }
+}
+

@@ -1,6 +1,6 @@
 // Admin API client for connecting to admin endpoints
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 // Get auth token from localStorage
 export const getToken = (): string | null => {
@@ -199,7 +199,7 @@ export const adminSubscribersAPI = {
 export const adminUploadAPI = {
   uploadSingle: async (formData: FormData) => {
     const token = getToken();
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
     
     const response = await fetch(`${API_URL}/admin/upload`, {
       method: 'POST',
@@ -223,7 +223,7 @@ export const adminUploadAPI = {
 
   uploadMultiple: async (formData: FormData) => {
     const token = getToken();
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
     
     const response = await fetch(`${API_URL}/admin/upload/multiple`, {
       method: 'POST',
@@ -316,6 +316,45 @@ export const adminAdminsAPI = {
   },
 };
 
+/**
+ * Admin Blogs API
+ */
+export const adminBlogsAPI = {
+  getAll: async (filters?: any) => {
+    const params = new URLSearchParams();
+    if (filters?.category) params.append('category', filters.category);
+    if (filters?.published !== undefined) params.append('published', String(filters.published));
+    if (filters?.featured !== undefined) params.append('featured', String(filters.featured));
+    
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return adminRequest(`/admin/blogs${query}`);
+  },
+
+  getOne: async (id: string) => {
+    return adminRequest(`/admin/blogs/${id}`);
+  },
+
+  create: async (data: any) => {
+    return adminRequest('/admin/blogs', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  update: async (id: string, data: any) => {
+    return adminRequest(`/admin/blogs/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  delete: async (id: string) => {
+    return adminRequest(`/admin/blogs/${id}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
 export default {
   auth: adminAuthAPI,
   dashboard: adminDashboardAPI,
@@ -325,5 +364,6 @@ export default {
   upload: adminUploadAPI,
   admins: adminAdminsAPI,
   profile: adminProfileAPI,
+  blogs: adminBlogsAPI,
 };
 

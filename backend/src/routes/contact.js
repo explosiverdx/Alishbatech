@@ -24,6 +24,7 @@ router.post(
   [
     body('name').notEmpty().trim().withMessage('Name is required'),
     body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
+    body('phone').optional({ checkFalsy: true }).trim(),
     body('subject').notEmpty().trim().withMessage('Subject is required'),
     body('message').notEmpty().trim().withMessage('Message is required'),
   ],
@@ -38,26 +39,27 @@ router.post(
         });
       }
 
-      const { name, email, subject, message } = req.body;
+      const { name, email, phone, subject, message } = req.body;
 
       // Log submission
       console.log('Contact Form Submission:', {
         name,
         email,
+        phone,
         subject,
         timestamp: new Date().toISOString(),
       });
 
       // Save to database
-      await saveContactSubmission({ name, email, subject, message });
+      await saveContactSubmission({ name, email, phone, subject, message });
 
       // Send email notification (implement this in production)
-      // await sendContactEmail({ name, email, subject, message });
+      // await sendContactEmail({ name, email, phone, subject, message });
 
       res.status(200).json({
         success: true,
         message: 'Message sent successfully! We will get back to you soon.',
-        data: { name, email, subject },
+        data: { name, email, phone, subject },
       });
     } catch (error) {
       console.error('Contact form error:', error);

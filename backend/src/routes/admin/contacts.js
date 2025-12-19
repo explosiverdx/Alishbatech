@@ -16,11 +16,12 @@ router.get('/', async (req, res) => {
     // Build query
     const query = {};
     
-    // Search by name or email
+    // Search by name, email, phone, or subject
     if (req.query.search) {
       query.$or = [
         { name: { $regex: req.query.search, $options: 'i' } },
         { email: { $regex: req.query.search, $options: 'i' } },
+        { phone: { $regex: req.query.search, $options: 'i' } },
         { subject: { $regex: req.query.search, $options: 'i' } }
       ];
     }
