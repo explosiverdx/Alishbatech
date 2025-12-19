@@ -316,13 +316,13 @@ export default function Blog() {
         // Use non-greedy match but allow it to match across multiple lines and tags
         // Fix: Use $1 for the tag name, not the full tag
         let pattern = new RegExp(`(<${hTag}>)([\\s\\S]*?)(<span[^>]*><<\\/span>[\\s]*<span[^>]*>/<\\/span>[\\s]*<span[^>]*>${hTag}[\\s]*<\\/span>[\\s]*<span[^>]*>><\\/span>)`, 'gi');
-        processed = processed.replace(pattern, (match, openTag, content, closingSpans) => {
+        processed = processed.replace(pattern, (_match, openTag, content) => {
           return `${openTag}${content}</${hTag}>`;
         });
         
         // Pattern 2: Same but with escaped entities
         pattern = new RegExp(`(<${hTag}>)([\\s\\S]*?)(<span[^>]*>&lt;<\\/span>[\\s]*<span[^>]*>/<\\/span>[\\s]*<span[^>]*>${hTag}[\\s]*<\\/span>[\\s]*<span[^>]*>&gt;<\\/span>)`, 'gi');
-        processed = processed.replace(pattern, (match, openTag, content, closingSpans) => {
+        processed = processed.replace(pattern, (_match, openTag, content) => {
           return `${openTag}${content}</${hTag}>`;
         });
         
@@ -338,7 +338,7 @@ export default function Blog() {
         // Match: <span...><</span> followed by <span...>/</span> followed by <span...>h1</span> followed by <span...>></span>
         // Allow for optional whitespace and different span structures
         pattern = new RegExp(`(<${hTag}>)([\\s\\S]*?)(<span[^>]*><<\\/span>.*?<span[^>]*>/<\\/span>.*?<span[^>]*>${hTag}[\\s]*<\\/span>.*?<span[^>]*>><\\/span>)`, 'gis');
-        processed = processed.replace(pattern, (match, openTag, content, closingSpans) => {
+        processed = processed.replace(pattern, (_match, openTag, content) => {
           return `${openTag}${content}</${hTag}>`;
         });
       }
@@ -383,7 +383,7 @@ export default function Blog() {
         // Pattern 2: Find <h1>...content.../h1 (plain text, no spans) and replace with </h1>
         // Use a more careful approach: find opening tag, then find /h1 that's not part of another tag
         const plainTextPattern = new RegExp(`(<${hTag}>)([\\s\\S]*?)(/${hTag})(?![a-z0-9])`, 'gi');
-        processed = processed.replace(plainTextPattern, (match, openTag, content, closingSlash) => {
+        processed = processed.replace(plainTextPattern, (match, openTag, content) => {
           // Check if there's already a proper closing tag in the content
           if (!content.includes(`</${hTag}>`)) {
             return `${openTag}${content}</${hTag}>`;
