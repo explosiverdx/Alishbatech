@@ -107,9 +107,16 @@
   }
 }
 
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .login-input {
   width: 100%;
   padding: 0.75rem 1rem;
+  padding-right: 3rem;
   border-radius: 0.5rem;
   border: 1px solid #d1d5db;
   background: white;
@@ -178,6 +185,43 @@
   }
   
   .login-back-link a:hover {
+    color: #60a5fa;
+  }
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  transition: color 0.2s;
+}
+
+.password-toggle:hover {
+  color: #3b82f6;
+}
+
+.password-toggle:focus {
+  outline: none;
+  color: #3b82f6;
+}
+
+@media (prefers-color-scheme: dark) {
+  .password-toggle {
+    color: #9ca3af;
+  }
+  
+  .password-toggle:hover {
+    color: #60a5fa;
+  }
+  
+  .password-toggle:focus {
     color: #60a5fa;
   }
 }

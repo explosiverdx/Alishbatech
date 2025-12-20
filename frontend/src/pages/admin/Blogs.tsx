@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { adminBlogsAPI, adminUploadAPI } from '../../lib/adminApi';
@@ -49,6 +49,9 @@ export default function Blogs() {
   const [tagInput, setTagInput] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [editorKey, setEditorKey] = useState(0);
+  const quillRef = useRef<any>(null);
+  const [quillReady, setQuillReady] = useState(false);
 
   useEffect(() => {
     loadBlogs();
@@ -73,6 +76,55 @@ export default function Blogs() {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
   };
+
+  // Update formData when editingBlog changes (backup in case handleEdit didn't set it)
+  useEffect(() => {
+    if (editingBlog && showModal && !formData.content && editingBlog.content) {
+      console.log('🔄 Backup: Updating formData from editingBlog');
+      setFormData(prev => ({
+        ...prev,
+        ...editingBlog,
+        content: editingBlog.content || ''
+      }));
+    }
+  }, [editingBlog?._id, showModal]);
+
+  // Manually set Quill content when editor is ready and we have content to set
+  useEffect(() => {
+    if (quillReady && quillRef.current && editingBlog && showModal) {
+      const targetContent = formData.content || editingBlog.content || '';
+      if (targetContent && targetContent.length > 0) {
+        const setQuillContent = () => {
+          try {
+            const quill = quillRef.current?.getEditor();
+            if (quill) {
+              const currentContent = quill.root.innerHTML;
+              // Only update if content is different
+              if (currentContent !== targetContent && (currentContent === '<p><br></p>' || currentContent === '' || currentContent === '<p></p>')) {
+                quill.clipboard.dangerouslyPasteHTML(targetContent);
+                console.log('✅ Manually set Quill content, length:', targetContent.length);
+                console.log('📄 Content preview:', targetContent.substring(0, 100));
+              }
+            }
+          } catch (error) {
+            console.error('❌ Error setting Quill content:', error);
+          }
+        };
+        
+        // Try immediately, then retry with delays to ensure editor is fully initialized
+        setQuillContent();
+        const timeoutId = setTimeout(setQuillContent, 100);
+        const timeoutId2 = setTimeout(setQuillContent, 300);
+        const timeoutId3 = setTimeout(setQuillContent, 600);
+        
+        return () => {
+          clearTimeout(timeoutId);
+          clearTimeout(timeoutId2);
+          clearTimeout(timeoutId3);
+        };
+      }
+    }
+  }, [quillReady, editingBlog?._id, showModal, editorKey, formData.content]);
 
   // Auto-generate meta title and description if empty
   useEffect(() => {
@@ -137,10 +189,57 @@ export default function Blogs() {
     }
   };
 
-  const handleEdit = (blog: Blog) => {
-    setEditingBlog(blog);
-    setFormData(blog);
-    setShowModal(true);
+  const handleEdit = async (blog: Blog) => {
+    try {
+      // Fetch fresh blog data to ensure we have the latest content
+      const response = await adminBlogsAPI.getOne(blog._id!);
+      console.log('📦 Full API response:', response);
+      
+      // Handle different response structures
+      const freshBlog = response.data || response;
+      
+      console.log('📝 Editing blog ID:', freshBlog._id);
+      console.log('📝 Blog content exists:', !!freshBlog.content);
+      console.log('📝 Blog content type:', typeof freshBlog.content);
+      console.log('📝 Blog content length:', freshBlog.content?.length || 0);
+      console.log('📝 Blog content preview (first 300 chars):', freshBlog.content?.substring(0, 300) || 'NO CONTENT');
+      
+      // Ensure we have valid blog data
+      if (!freshBlog) {
+        throw new Error('No blog data received');
+      }
+      
+      // Set formData FIRST, then open modal after state has updated
+      const contentToSet = freshBlog.content || '';
+      console.log('📝 Setting formData with content, length:', contentToSet.length);
+      
+      setFormData({
+        ...freshBlog,
+        content: contentToSet
+      });
+      
+      setEditingBlog(freshBlog);
+      setQuillReady(false);
+      setEditorKey(prev => prev + 1);
+      
+      // Use requestAnimationFrame to ensure state updates before opening modal
+      requestAnimationFrame(() => {
+        setShowModal(true);
+        // Then try to set quill content after modal renders
+        setTimeout(() => {
+          setQuillReady(true);
+        }, 200);
+      });
+    } catch (error) {
+      console.error('Failed to load blog for editing:', error);
+      console.log('📝 Using fallback blog data from list');
+      console.log('📝 Fallback content:', blog.content?.substring(0, 200) || 'NO CONTENT');
+      
+      // Set editingBlog - useEffect will update formData
+      setEditingBlog(blog);
+      setQuillReady(false); // Reset quill ready state
+      setShowModal(true);
+    }
   };
 
   const resetForm = () => {
@@ -163,6 +262,7 @@ export default function Blogs() {
     });
     setTagInput('');
     setKeywordInput('');
+    setEditorKey(prev => prev + 1);
   };
 
   const addTag = () => {
@@ -205,7 +305,7 @@ export default function Blogs() {
 
   const quillFormats = [
     'header', 'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'script', 'indent',
+    'list', 'script', 'indent',
     'color', 'background', 'align',
     'link', 'image', 'video',
     'blockquote', 'code-block'
@@ -355,10 +455,27 @@ export default function Blogs() {
                     </span>
                   </div>
                   <div style={{ minHeight: '300px', marginBottom: '1rem' }}>
+                    {process.env.NODE_ENV === 'development' && (
+                      <div style={{ marginBottom: '0.5rem', fontSize: '0.75rem', color: '#666' }}>
+                        Debug: Content length = {formData.content?.length || 0}, Editor Key = {editorKey}
+                      </div>
+                    )}
                     <ReactQuill
+                      ref={(el) => {
+                        quillRef.current = el;
+                        if (el) {
+                          // Mark quill as ready after a brief delay
+                          setTimeout(() => {
+                            setQuillReady(true);
+                          }, 50);
+                        }
+                      }}
+                      key={`quill-${editingBlog?._id || 'new'}-${editorKey}`}
                       theme="snow"
-                      value={formData.content}
-                      onChange={(value) => setFormData({ ...formData, content: value })}
+                      value={formData.content || ''}
+                      onChange={(value) => {
+                        setFormData(prev => ({ ...prev, content: value }));
+                      }}
                       modules={quillModules}
                       formats={quillFormats}
                       placeholder="Write your blog content here..."

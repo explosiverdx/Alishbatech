@@ -38,11 +38,11 @@ router.post(
 
       const { username, password } = req.body;
 
-      // Find admin by username or email
+      // Find admin by username or email (email is stored lowercase)
       const admin = await Admin.findOne({
         $or: [
-          { username: username },
-          { email: username }
+          { username: username.trim() },
+          { email: username.trim().toLowerCase() }
         ]
       });
 
@@ -62,6 +62,7 @@ router.post(
       const isPasswordValid = await admin.comparePassword(password);
 
       if (!isPasswordValid) {
+        console.log(`❌ Login failed for: ${username} (Password mismatch)`);
         return res.status(401).json({
           error: 'Invalid credentials'
         });

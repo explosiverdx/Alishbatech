@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { blogsAPI } from '../lib/api';
-import { processBlogContent, extractPlainText } from '../utils/blogContent';
+import { extractPlainText } from '../utils/blogContent';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import '../styles/Blog.css';
@@ -50,393 +50,126 @@ export default function Blog() {
     }
   }, [slug, location.pathname]);
 
+  // Simple function to clean React Quill content
+  const cleanQuillContent = (html: string): string => {
+    if (!html) return '';
+    
+    let cleaned = html;
+    
+    // Step 0: If content is inside <pre><code> blocks, extract and decode it
+    // This handles cases where HTML was typed in a code block
+    cleaned = cleaned.replace(/<pre[^>]*><code[^>]*>([\s\S]*?)<\/code><\/pre>/gi, (_match, codeContent) => {
+      // Decode HTML entities in code blocks
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = codeContent;
+      const decoded = tempDiv.textContent || tempDiv.innerText || codeContent;
+      return decoded;
+    });
+    
+    // Step 1: Remove spans that wrap HTML syntax characters (this breaks HTML tags)
+    // React Quill wraps each character in spans for syntax highlighting
+    // Pattern: <span...>&lt;</span> or <span...><</span> etc.
+    // We extract the content and remove the span wrapper
+    cleaned = cleaned.replace(/<span[^>]*>(&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;#x3C;|&amp;#x3E;|&amp;#60;|&amp;#62;|&#60;|&#62;|&#x3C;|&#x3E;|<|>|\/|\s*)<\/span>/gi, '$1');
+    
+    // Also handle spans with style attributes (syntax highlighting)
+    cleaned = cleaned.replace(/<span[^>]*style="[^"]*"[^>]*>(&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;#x3C;|&amp;#x3E;|&#60;|&#62;|&#x3C;|&#x3E;|<|>|\/|\s*)<\/span>/gi, '$1');
+    
+    // Remove empty spans
+    cleaned = cleaned.replace(/<span[^>]*>\s*<\/span>/gi, '');
+    
+    // Step 2: Fix React Quill's syntax highlighting spans that break HTML tags
+    // Pattern for closing tags: <span...>&lt;</span><span...>/</span><span...>tagName</span><span...>&gt;</span>
+    // Handle with optional whitespace/newlines between spans
+    cleaned = cleaned.replace(
+      /<span[^>]*>&lt;<\/span>[\s\S]*?<span[^>]*>\/<\/span>[\s\S]*?<span[^>]*>([a-z][a-z0-9]*)\s*<\/span>[\s\S]*?<span[^>]*>&gt;<\/span>/gi,
+      '</$1>'
+    );
+    
+    // Pattern for opening tags: <span...>&lt;</span><span...>tagName</span><span...>&gt;</span>
+    cleaned = cleaned.replace(
+      /<span[^>]*>&lt;<\/span>[\s\S]*?<span[^>]*>([a-z][a-z0-9]*)\s*<\/span>[\s\S]*?<span[^>]*>&gt;<\/span>/gi,
+      '<$1>'
+    );
+    
+    // Also handle patterns where < and > are already decoded but spans remain
+    cleaned = cleaned.replace(
+      /<span[^>]*><<\/span>[\s\S]*?<span[^>]*>\/<\/span>[\s\S]*?<span[^>]*>([a-z][a-z0-9]*)\s*<\/span>[\s\S]*?<span[^>]*>><\/span>/gi,
+      '</$1>'
+    );
+    
+    cleaned = cleaned.replace(
+      /<span[^>]*><<\/span>[\s\S]*?<span[^>]*>([a-z][a-z0-9]*)\s*<\/span>[\s\S]*?<span[^>]*>><\/span>/gi,
+      '<$1>'
+    );
+    
+    // Step 3: Handle cases where tags are broken across lines or have extra whitespace
+    // IMPORTANT: Handle closing tags FIRST (with /), then opening tags
+    cleaned = cleaned.replace(/&lt;\s*\/\s*([a-z][a-z0-9]*)\s*&gt;/gi, '</$1>');
+    cleaned = cleaned.replace(/&lt;\s*([a-z][a-z0-9]*)\s*&gt;/gi, '<$1>');
+    
+    // Step 4: Remove any remaining decorative spans that only contain HTML syntax characters
+    cleaned = cleaned.replace(/<span[^>]*style="[^"]*color:\s*rgb\(153,\s*153,\s*153\)[^"]*"[^>]*>(&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;#x3C;|&amp;#x3E;|<|>|\/|\s*)<\/span>/gi, '$1');
+    
+    // Step 5: Manually decode HTML entities to preserve structure
+    // This ensures we decode &lt;h1&gt; to <h1> without the browser trying to parse it
+    let decoded = cleaned;
+    decoded = decoded.replace(/&lt;/g, '<');
+    decoded = decoded.replace(/&gt;/g, '>');
+    decoded = decoded.replace(/&amp;/g, '&');
+    decoded = decoded.replace(/&quot;/g, '"');
+    decoded = decoded.replace(/&#39;/g, "'");
+    decoded = decoded.replace(/&#x27;/g, "'");
+    
+    // Also handle numeric entities
+    decoded = decoded.replace(/&#60;/g, '<');
+    decoded = decoded.replace(/&#62;/g, '>');
+    decoded = decoded.replace(/&#x3C;/gi, '<');
+    decoded = decoded.replace(/&#x3E;/gi, '>');
+    
+    // Step 6: Fix any remaining escaped tags (handle all HTML entities)
+    // IMPORTANT: Handle closing tags FIRST (with /), then opening tags
+    decoded = decoded.replace(/&lt;\/([a-z][a-z0-9]*)\s*&gt;/gi, '</$1>');
+    decoded = decoded.replace(/&lt;([a-z][a-z0-9]*)\s*&gt;/gi, '<$1>');
+    decoded = decoded.replace(/&#60;\/([a-z][a-z0-9]*)\s*&#62;/gi, '</$1>');
+    decoded = decoded.replace(/&#60;([a-z][a-z0-9]*)\s*&#62;/gi, '<$1>');
+    decoded = decoded.replace(/&#x3C;\/([a-z][a-z0-9]*)\s*&#x3E;/gi, '</$1>');
+    decoded = decoded.replace(/&#x3C;([a-z][a-z0-9]*)\s*&#x3E;/gi, '<$1>');
+    
+    // Step 7: Fix malformed tags like <</h1> -> </h1> (double < before closing tag)
+    decoded = decoded.replace(/<(\/)([a-z][a-z0-9]*)\s*>/gi, '<$1$2>');
+    decoded = decoded.replace(/<<\/([a-z][a-z0-9]*)\s*>/gi, '</$1>');
+    
+    // Step 8: Remove nested <p> tags that shouldn't be nested
+    // This fixes cases where we have <p><p>content</p></p> -> <p>content</p>
+    decoded = decoded.replace(/<p>\s*<p>/gi, '<p>');
+    decoded = decoded.replace(/<\/p>\s*<\/p>/gi, '</p>');
+    
+    return decoded;
+  };
+
   // Process blog content when blog changes
   useEffect(() => {
     if (blog && blog.content) {
-      const rawContent = blog.content;
-      
-      // Function to fix React Quill's syntax highlighting spans that break HTML tags
-      // React Quill wraps HTML tag characters in colored spans, breaking tags like &lt;h1&gt; into spans
-      // Pattern from console: <span style="...">&lt;</span><span style="...">h1</span><span style="...">&gt;</span>
-      const fixQuillSyntaxHighlighting = (text: string): string => {
-        let fixed = text;
-        
-        // FIRST: Fix closing tags (they need to be fixed before opening tags to avoid conflicts)
-        // Pattern for closing tags: <span...>&lt;</span><span...>/</span><span...>tagName</span><span...>&gt;</span>
-        fixed = fixed.replace(
-          /<span[^>]*>&lt;<\/span><span[^>]*>\/<\/span><span[^>]*>([a-z][a-z0-9]*)\s*<\/span><span[^>]*>&gt;<\/span>/gi,
-          '</$1>'
-        );
-        
-        // Pattern: <span...>&lt;</span><span...>tagName</span><span...>&gt;</span>
-        // Match opening tags like <h1>, <h2>, etc.
-        fixed = fixed.replace(
-          /<span[^>]*>&lt;<\/span><span[^>]*>([a-z][a-z0-9]*)\s*<\/span><span[^>]*>&gt;<\/span>/gi,
-          '<$1>'
-        );
-        
-        // Also handle patterns where &lt; and &gt; are already decoded but spans remain
-        // Pattern for closing: <span...><</span><span...>/</span><span...>h1</span><span...>></span>
-        fixed = fixed.replace(
-          /<span[^>]*><<\/span><span[^>]*>\/<\/span><span[^>]*>([a-z][a-z0-9]*)\s*<\/span><span[^>]*>><\/span>/gi,
-          '</$1>'
-        );
-        
-        // Pattern: <span...><</span><span...>h1</span><span...>></span>
-        fixed = fixed.replace(
-          /<span[^>]*><<\/span><span[^>]*>([a-z][a-z0-9]*)\s*<\/span><span[^>]*>><\/span>/gi,
-          '<$1>'
-        );
-        
-        // Handle simpler patterns: &lt;\/</span><span>h1</span><span>&gt;</span>
-        fixed = fixed.replace(
-          /&lt;\/<\/span><span[^>]*>([a-z][a-z0-9]*)\s*<\/span><span[^>]*>&gt;<\/span>/gi,
-          '</$1>'
-        );
-        
-        // Handle simpler patterns: &lt;</span><span>h1</span><span>&gt;</span>
-        fixed = fixed.replace(
-          /&lt;<\/span><span[^>]*>([a-z][a-z0-9]*)\s*<\/span><span[^>]*>&gt;<\/span>/gi,
-          '<$1>'
-        );
-        
-        // Clean up syntax highlighting spans that are just decorative characters
-        // Remove spans containing only < or > characters (these are from syntax highlighting)
-        // These spans appear inside tags and break the HTML structure
-        fixed = fixed.replace(
-          /<span[^>]*style="[^"]*color:\s*rgb\(153,\s*153,\s*153\)[^"]*"[^>]*><<\/span>/gi,
-          ''
-        );
-        fixed = fixed.replace(
-          /<span[^>]*style="[^"]*color:\s*rgb\(153,\s*153,\s*153\)[^"]*"[^>]*>><\/span>/gi,
-          ''
-        );
-        // Also remove spans with just < or > that might have different color values
-        fixed = fixed.replace(
-          /<span[^>]*style="[^"]*"[^>]*><<\/span>/gi,
-          ''
-        );
-        fixed = fixed.replace(
-          /<span[^>]*style="[^"]*"[^>]*>><\/span>/gi,
-          ''
-        );
-        
-        return fixed;
-      };
-      
-      // Function to clean up broken closing tags that appear inside other tags
-      // After fixing opening tags, closing tag spans might end up inside the tag
-      const fixBrokenClosingTags = (text: string): string => {
-        let fixed = text;
-        
-        // Strategy: Find all instances of broken closing tags and fix them
-        // This needs to work even when they appear inside other tags
-        
-        // Pattern 1: <span><</span><span>/</span><span>h1</span><span>></span>
-        // Match this pattern globally and replace with </h1>
-        fixed = fixed.replace(
-          /<span[^>]*><<\/span>\s*<span[^>]*>\/<\/span>\s*<span[^>]*>([a-z][a-z0-9]*)\s*<\/span>\s*<span[^>]*>><\/span>/gi,
-          '</$1>'
-        );
-        
-        // Pattern 2: <span>&lt;</span><span>/</span><span>h1</span><span>&gt;</span>
-        fixed = fixed.replace(
-          /<span[^>]*>&lt;<\/span>\s*<span[^>]*>\/<\/span>\s*<span[^>]*>([a-z][a-z0-9]*)\s*<\/span>\s*<span[^>]*>&gt;<\/span>/gi,
-          '</$1>'
-        );
-        
-        // Pattern 3: More specific for H tags - find <h1>...content...broken closing tag
-        // Use a more flexible approach that matches content between tags
-        const hTagPattern = /<(h[1-6])>([\s\S]*?)(<span[^>]*><<\/span>\s*<span[^>]*>\/<\/span>\s*<span[^>]*>\1\s*<\/span>\s*<span[^>]*>><\/span>)/gi;
-        fixed = fixed.replace(hTagPattern, '<$1>$2</$1>');
-        
-        // Pattern 4: Same but with escaped entities
-        const hTagPatternEscaped = /<(h[1-6])>([\s\S]*?)(<span[^>]*>&lt;<\/span>\s*<span[^>]*>\/<\/span>\s*<span[^>]*>\1\s*<\/span>\s*<span[^>]*>&gt;<\/span>)/gi;
-        fixed = fixed.replace(hTagPatternEscaped, '<$1>$2</$1>');
-        
-        // Pattern 5: Handle any remaining broken closing tag patterns
-        fixed = fixed.replace(
-          /<span[^>]*><<\/span><span[^>]*>\/<\/span><span[^>]*>([a-z][a-z0-9]*)\s*<\/span><span[^>]*>><\/span>/gi,
-          '</$1>'
-        );
-        
-        fixed = fixed.replace(
-          /<span[^>]*>&lt;<\/span><span[^>]*>\/<\/span><span[^>]*>([a-z][a-z0-9]*)\s*<\/span><span[^>]*>&gt;<\/span>/gi,
-          '</$1>'
-        );
-        
-        return fixed;
-      };
-      
-      // Function to decode HTML entities while preserving HTML structure
-      const decodeHTML = (text: string): string => {
-        // First, fix React Quill's syntax highlighting spans
-        let decoded = fixQuillSyntaxHighlighting(text);
-        
-        // Then manually decode HTML entities - this preserves the HTML structure
-        // Keep decoding until no more changes (handles multiple levels of escaping)
-        let previousDecoded = '';
-        let iterations = 0;
-        const maxIterations = 5; // Prevent infinite loops
-        
-        while (decoded !== previousDecoded && iterations < maxIterations) {
-          previousDecoded = decoded;
-          // Decode in correct order to avoid double-decoding
-          decoded = decoded
-            .replace(/&amp;/g, '&')  // Must decode &amp; first
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, "'")
-            .replace(/&#x27;/g, "'")
-            .replace(/&#x2F;/g, '/')
-            .replace(/&nbsp;/g, ' ')
-            .replace(/&#x60;/g, '`')
-            .replace(/&#96;/g, '`')
-            // Decode numeric entities for common characters
-            .replace(/&#60;/g, '<')
-            .replace(/&#62;/g, '>')
-            .replace(/&#34;/g, '"')
-            .replace(/&#38;/g, '&')
-            // Handle hex entities
-            .replace(/&#x3C;/gi, '<')
-            .replace(/&#x3E;/gi, '>')
-            .replace(/&#x22;/gi, '"')
-            .replace(/&#x26;/gi, '&');
-          
-          // After each decode iteration, fix any broken closing tags
-          decoded = fixBrokenClosingTags(decoded);
-          
-          iterations++;
-        }
-        
-        // Final pass to fix any remaining broken closing tags
-        decoded = fixBrokenClosingTags(decoded);
-        
-        return decoded;
-      };
-      
-      // Check if content contains HTML tags (either direct or escaped)
-      const hasDirectHTML = /<[a-z][a-z0-9]*[^>]*>/i.test(rawContent) || /<\/[a-z][a-z0-9]*>/i.test(rawContent);
-      // More comprehensive check for escaped HTML (including spaces, numbers, etc.)
-      const hasEscapedHTML = /&lt;[a-z0-9]|&lt;\/[a-z0-9]|&amp;lt;|&#x3C;[a-z0-9]|&#60;[a-z0-9]/i.test(rawContent);
-      const hasAnyHTMLEntities = /&[a-z0-9#]+;/i.test(rawContent);
-      // Check for React Quill's syntax highlighting pattern (spans breaking HTML tags)
-      const hasQuillSyntaxHighlighting = /<span[^>]*>&lt;<\/span><span[^>]*>[a-z][a-z0-9]*<\/span>/i.test(rawContent);
-      
-      let processed = rawContent;
-      
-      // ALWAYS decode HTML entities if they exist - this is safe even if content has direct HTML
-      // This handles mixed content where some tags are escaped and some are not
-      // React Quill often stores content with escaped HTML entities
-      // Also fix React Quill syntax highlighting if detected
-      if (hasEscapedHTML || hasAnyHTMLEntities || hasQuillSyntaxHighlighting) {
-        processed = decodeHTML(rawContent);
-        // Keep decoding until no more escaped HTML tags remain
-        // Check for various escaped HTML patterns (including with spaces)
-        let decodeCount = 0;
-        const escapedPattern = /&lt;[a-z0-9]|&lt;\/[a-z0-9]|&#x3C;[a-z0-9]|&#60;[a-z0-9]|&amp;lt;/i;
-        while (escapedPattern.test(processed) && decodeCount < 10) {
-          const beforeDecode = processed;
-          processed = decodeHTML(processed);
-          // If no change occurred, break to avoid infinite loop
-          if (beforeDecode === processed) break;
-          decodeCount++;
-        }
-        
-        // Final check: if we still have escaped H tags specifically, try one more aggressive decode
-        if (/&lt;h[1-6]|&lt;\/h[1-6]|&#60;h[1-6]|&#x3C;h[1-6]/i.test(processed)) {
-          console.warn('⚠️ Still found escaped H tags after decoding, applying aggressive decode');
-          // More aggressive: replace all escaped H tags directly (handles attributes and spaces)
-          // Match opening tags with any attributes: &lt;h1 ... &gt;
-          processed = processed
-            .replace(/&lt;h1([^&]*?)&gt;/gi, '<h1$1>')
-            .replace(/&lt;h2([^&]*?)&gt;/gi, '<h2$1>')
-            .replace(/&lt;h3([^&]*?)&gt;/gi, '<h3$1>')
-            .replace(/&lt;h4([^&]*?)&gt;/gi, '<h4$1>')
-            .replace(/&lt;h5([^&]*?)&gt;/gi, '<h5$1>')
-            .replace(/&lt;h6([^&]*?)&gt;/gi, '<h6$1>')
-            .replace(/&lt;\/h1\s*&gt;/gi, '</h1>')
-            .replace(/&lt;\/h2\s*&gt;/gi, '</h2>')
-            .replace(/&lt;\/h3\s*&gt;/gi, '</h3>')
-            .replace(/&lt;\/h4\s*&gt;/gi, '</h4>')
-            .replace(/&lt;\/h5\s*&gt;/gi, '</h5>')
-            .replace(/&lt;\/h6\s*&gt;/gi, '</h6>')
-            // Also handle numeric entities
-            .replace(/&#60;h1([^&]*?)&#62;/gi, '<h1$1>')
-            .replace(/&#60;h2([^&]*?)&#62;/gi, '<h2$1>')
-            .replace(/&#60;h3([^&]*?)&#62;/gi, '<h3$1>')
-            .replace(/&#60;h4([^&]*?)&#62;/gi, '<h4$1>')
-            .replace(/&#60;h5([^&]*?)&#62;/gi, '<h5$1>')
-            .replace(/&#60;h6([^&]*?)&#62;/gi, '<h6$1>')
-            .replace(/&#60;\/h1\s*&#62;/gi, '</h1>')
-            .replace(/&#60;\/h2\s*&#62;/gi, '</h2>')
-            .replace(/&#60;\/h3\s*&#62;/gi, '</h3>')
-            .replace(/&#60;\/h4\s*&#62;/gi, '</h4>')
-            .replace(/&#60;\/h5\s*&#62;/gi, '</h5>')
-            .replace(/&#60;\/h6\s*&#62;/gi, '</h6>')
-            // Handle hex entities
-            .replace(/&#x3C;h1([^&]*?)&#x3E;/gi, '<h1$1>')
-            .replace(/&#x3C;h2([^&]*?)&#x3E;/gi, '<h2$1>')
-            .replace(/&#x3C;h3([^&]*?)&#x3E;/gi, '<h3$1>')
-            .replace(/&#x3C;h4([^&]*?)&#x3E;/gi, '<h4$1>')
-            .replace(/&#x3C;h5([^&]*?)&#x3E;/gi, '<h5$1>')
-            .replace(/&#x3C;h6([^&]*?)&#x3E;/gi, '<h6$1>')
-            .replace(/&#x3C;\/h1\s*&#x3E;/gi, '</h1>')
-            .replace(/&#x3C;\/h2\s*&#x3E;/gi, '</h2>')
-            .replace(/&#x3C;\/h3\s*&#x3E;/gi, '</h3>')
-            .replace(/&#x3C;\/h4\s*&#x3E;/gi, '</h4>')
-            .replace(/&#x3C;\/h5\s*&#x3E;/gi, '</h5>')
-            .replace(/&#x3C;\/h6\s*&#x3E;/gi, '</h6>');
-        }
-      } 
-      // If content already has direct HTML tags and no entities, use as-is
-      else if (hasDirectHTML) {
-        processed = rawContent;
-      } 
-      // Otherwise, process as markdown/plain text
-      else {
-        processed = processBlogContent(rawContent);
+      // Debug: Log raw content to see what we're working with
+      if (blog.content.includes('h1') || blog.content.includes('Transforming')) {
+        console.log('🔍 Raw blog content (first 1000 chars):', blog.content.substring(0, 1000));
       }
       
-      // Final safety check: if we still have any escaped HTML entities, decode them one more time
-      const stillHasEscaped = /&lt;[a-z0-9]|&lt;\/[a-z0-9]|&#x3C;[a-z0-9]|&#60;[a-z0-9]/i.test(processed);
-      if (stillHasEscaped) {
-        console.warn('⚠️ Still found escaped HTML after processing, applying final decode pass');
-        processed = decodeHTML(processed);
+      const cleaned = cleanQuillContent(blog.content);
+      
+      // Debug: Log cleaned content
+      if (blog.content.includes('h1') || blog.content.includes('Transforming')) {
+        console.log('✨ Cleaned blog content (first 1000 chars):', cleaned.substring(0, 1000));
+        console.log('🔎 Does cleaned content contain <h1>?', cleaned.includes('<h1>'));
+        console.log('🔎 Does cleaned content contain </h1>?', cleaned.includes('</h1>'));
       }
       
-      // Final cleanup: Fix any remaining broken closing tags for H tags
-      // This handles cases where closing tags appear as spans inside opening tags
-      // Use a more aggressive approach: find opening H tags and their corresponding broken closing tags
-      for (let i = 1; i <= 6; i++) {
-        const hTag = `h${i}`;
-        
-        // Pattern 1: <h1>...any content including spans...<span><</span><span>/</span><span>h1</span><span>></span>
-        // Use non-greedy match but allow it to match across multiple lines and tags
-        // Fix: Use $1 for the tag name, not the full tag
-        let pattern = new RegExp(`(<${hTag}>)([\\s\\S]*?)(<span[^>]*><<\\/span>[\\s]*<span[^>]*>/<\\/span>[\\s]*<span[^>]*>${hTag}[\\s]*<\\/span>[\\s]*<span[^>]*>><\\/span>)`, 'gi');
-        processed = processed.replace(pattern, (_match, openTag, content) => {
-          return `${openTag}${content}</${hTag}>`;
-        });
-        
-        // Pattern 2: Same but with escaped entities
-        pattern = new RegExp(`(<${hTag}>)([\\s\\S]*?)(<span[^>]*>&lt;<\\/span>[\\s]*<span[^>]*>/<\\/span>[\\s]*<span[^>]*>${hTag}[\\s]*<\\/span>[\\s]*<span[^>]*>&gt;<\\/span>)`, 'gi');
-        processed = processed.replace(pattern, (_match, openTag, content) => {
-          return `${openTag}${content}</${hTag}>`;
-        });
-        
-        // Pattern 3: More flexible - match any broken closing tag pattern for this H tag
-        // This catches cases where the pattern might be slightly different
-        pattern = new RegExp(`<span[^>]*><<\\/span>[\\s]*<span[^>]*>/<\\/span>[\\s]*<span[^>]*>${hTag}[\\s]*<\\/span>[\\s]*<span[^>]*>><\\/span>`, 'gi');
-        processed = processed.replace(pattern, `</${hTag}>`);
-        
-        pattern = new RegExp(`<span[^>]*>&lt;<\\/span>[\\s]*<span[^>]*>/<\\/span>[\\s]*<span[^>]*>${hTag}[\\s]*<\\/span>[\\s]*<span[^>]*>&gt;<\\/span>`, 'gi');
-        processed = processed.replace(pattern, `</${hTag}>`);
-        
-        // Pattern 4: Handle cases where spans might be in different order or have different attributes
-        // Match: <span...><</span> followed by <span...>/</span> followed by <span...>h1</span> followed by <span...>></span>
-        // Allow for optional whitespace and different span structures
-        pattern = new RegExp(`(<${hTag}>)([\\s\\S]*?)(<span[^>]*><<\\/span>.*?<span[^>]*>/<\\/span>.*?<span[^>]*>${hTag}[\\s]*<\\/span>.*?<span[^>]*>><\\/span>)`, 'gis');
-        processed = processed.replace(pattern, (_match, openTag, content) => {
-          return `${openTag}${content}</${hTag}>`;
-        });
-      }
-      
-      // Additional cleanup: Remove any remaining syntax highlighting spans that are just decorative
-      // These are spans that contain only <, >, or / characters
-      processed = processed.replace(/<span[^>]*style="[^"]*color:\s*rgb\(153,\s*153,\s*153\)[^"]*"[^>]*><<\/span>/gi, '');
-      processed = processed.replace(/<span[^>]*style="[^"]*color:\s*rgb\(153,\s*153,\s*153\)[^"]*"[^>]*>><\/span>/gi, '');
-      processed = processed.replace(/<span[^>]*style="[^"]*color:\s*rgb\(153,\s*153,\s*153\)[^"]*"[^>]*>\/<\/span>/gi, '');
-      
-      // Final aggressive pass: Use a simple but effective approach
-      // Replace any broken closing tag pattern globally, regardless of context
-      for (let i = 1; i <= 6; i++) {
-        const hTag = `h${i}`;
-        
-        // Replace broken closing tag patterns with proper closing tags
-        // This works even if they appear inside other tags
-        const patterns = [
-          // Pattern with decoded < and >
-          new RegExp(`<span[^>]*><<\\/span>\\s*<span[^>]*>/<\\/span>\\s*<span[^>]*>${hTag}\\s*<\\/span>\\s*<span[^>]*>><\\/span>`, 'gi'),
-          // Pattern with escaped &lt; and &gt;
-          new RegExp(`<span[^>]*>&lt;<\\/span>\\s*<span[^>]*>/<\\/span>\\s*<span[^>]*>${hTag}\\s*<\\/span>\\s*<span[^>]*>&gt;<\\/span>`, 'gi'),
-          // More flexible pattern allowing any attributes
-          new RegExp(`<span[^>]*><<\\/span>.*?<span[^>]*>/<\\/span>.*?<span[^>]*>${hTag}\\s*<\\/span>.*?<span[^>]*>><\\/span>`, 'gis'),
-        ];
-        
-        patterns.forEach(pattern => {
-          processed = processed.replace(pattern, `</${hTag}>`);
-        });
-      }
-      
-      // CRITICAL FIX: Handle cases where closing tags appear as /h1, /h2, etc. (missing < and >)
-      // This happens when the spans containing < and > are removed but /h1 remains
-      // Find opening H tags and look for /h1, /h2, etc. after them and replace with proper closing tags
-      for (let i = 1; i <= 6; i++) {
-        const hTag = `h${i}`;
-        
-        // Pattern 1: Find <h1>...content...<span>/</span><span>h1</span> and replace with </h1>
-        const spanPattern = new RegExp(`(<${hTag}>[\\s\\S]*?)(<span[^>]*>/<\\/span>[\\s]*<span[^>]*>${hTag}[\\s]*<\\/span>)`, 'gi');
-        processed = processed.replace(spanPattern, `$1</${hTag}>`);
-        
-        // Pattern 2: Find <h1>...content.../h1 (plain text, no spans) and replace with </h1>
-        // Use a more careful approach: find opening tag, then find /h1 that's not part of another tag
-        const plainTextPattern = new RegExp(`(<${hTag}>)([\\s\\S]*?)(/${hTag})(?![a-z0-9])`, 'gi');
-        processed = processed.replace(plainTextPattern, (match, openTag, content) => {
-          // Check if there's already a proper closing tag in the content
-          if (!content.includes(`</${hTag}>`)) {
-            return `${openTag}${content}</${hTag}>`;
-          }
-          return match;
-        });
-        
-        // Pattern 3: Handle cases where /h1 appears inside spans
-        const spanWithSlashPattern = new RegExp(`(<${hTag}>[\\s\\S]*?)(<span[^>]*>/${hTag}<\\/span>)`, 'gi');
-        processed = processed.replace(spanWithSlashPattern, `$1</${hTag}>`);
-      }
-      
-      // Debug logging to help diagnose the issue
-      // Find H tags in raw content to see their exact format (including Quill syntax highlighting)
-      const hTagMatch = rawContent.match(/(&lt;h[1-6][^&]*&gt;|&lt;\/h[1-6]&gt;|<h[1-6][^>]*>|<\/h[1-6]>|<span[^>]*>&lt;<\/span><span[^>]*>h[1-6])/i);
-      // Check for Quill pattern: <span...>&lt;</span><span...>h1</span>
-      const quillHTagIndex = rawContent.search(/<span[^>]*>&lt;<\/span><span[^>]*>h[1-6]/i);
-      const hTagIndex = rawContent.search(/(&lt;h[1-6]|<h[1-6]|<span[^>]*>&lt;<\/span><span[^>]*>h[1-6])/i);
-      const rawHTagSample = hTagIndex >= 0 ? rawContent.substring(Math.max(0, hTagIndex - 20), Math.min(rawContent.length, hTagIndex + 150)) : 'Not found';
-      
-      const processedHTagIndex = processed.search(/(&lt;h[1-6]|<h[1-6])/i);
-      const processedHTagSample = processedHTagIndex >= 0 ? processed.substring(Math.max(0, processedHTagIndex - 20), Math.min(processed.length, processedHTagIndex + 150)) : 'Not found';
-      
-      const finalHasEscaped = /&lt;[a-z0-9]|&lt;\/[a-z0-9]|&#x3C;[a-z0-9]|&#60;[a-z0-9]/i.test(processed);
-      const finalHasQuillPattern = /<span[^>]*>&lt;<\/span><span[^>]*>[a-z][a-z0-9]*<\/span>/i.test(processed);
-      
-      console.log('🔍 Blog Content Debug:', {
-        rawLength: rawContent.length,
-        processedLength: processed.length,
-        hasDirectHTML,
-        hasEscapedHTML,
-        hasAnyHTMLEntities,
-        hasQuillSyntaxHighlighting,
-        stillHasEscaped: finalHasEscaped,
-        stillHasQuillPattern: finalHasQuillPattern,
-        rawSample: rawContent.substring(0, 200),
-        processedSample: processed.substring(0, 200),
-        // Check specifically for H tags
-        rawHasHTags: /&lt;h[1-6]|&lt;\/h[1-6]|<h[1-6]|<\/h[1-6]|<span[^>]*>&lt;<\/span><span[^>]*>h[1-6]/i.test(rawContent),
-        processedHasHTags: /<h[1-6]|<\/h[1-6]/i.test(processed),
-        processedHasEscapedHTags: /&lt;h[1-6]|&lt;\/h[1-6]/i.test(processed),
-        rawHTagSample,
-        processedHTagSample,
-        hTagMatch: hTagMatch ? hTagMatch[0] : null,
-        quillHTagIndex: quillHTagIndex >= 0 ? quillHTagIndex : -1
-      });
-      
-      setProcessedContent(processed);
+      setProcessedContent(cleaned);
     } else {
       setProcessedContent('');
     }
   }, [blog]);
-
 
   // Update SEO meta tags when blog loads
   useEffect(() => {
