@@ -34,3 +34,6 @@ build/
 # PowerShell scripts
 *.ps1
 
+# Admin scripts (contains sensitive operations)
+reset-password.js
+check-admin.js

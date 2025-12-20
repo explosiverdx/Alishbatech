@@ -455,7 +455,7 @@ export default function Blogs() {
                     </span>
                   </div>
                   <div style={{ minHeight: '300px', marginBottom: '1rem' }}>
-                    {process.env.NODE_ENV === 'development' && (
+                    {import.meta.env.DEV && (
                       <div style={{ marginBottom: '0.5rem', fontSize: '0.75rem', color: '#666' }}>
                         Debug: Content length = {formData.content?.length || 0}, Editor Key = {editorKey}
                       </div>
