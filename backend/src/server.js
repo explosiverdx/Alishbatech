@@ -34,8 +34,8 @@ const PORT = process.env.PORT || 5001;
 app.use(helmet()); // Security headers
 app.use(cors()); // Enable CORS for all origins (configure for production)
 app.use(morgan('dev')); // Logging
-app.use(bodyParser.json()); // Parse JSON bodies
-app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(bodyParser.json({ limit: '50mb' })); // Parse JSON bodies with increased limit for blog content
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' })); // Parse URL-encoded bodies with increased limit
 
 // Welcome route
 app.get('/', (req, res) => {
