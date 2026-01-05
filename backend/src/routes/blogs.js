@@ -6,16 +6,38 @@ const { getBlogs, getBlogById } = require('../utils/database');
 router.get('/', async (req, res) => {
   try {
     const filters = req.query;
+    console.log('📝 Fetching blogs with filters:', filters);
     const blogs = await getBlogs(filters);
+    console.log(`✅ Retrieved ${blogs.length} blogs`);
+
+    // Limit response size by selecting only necessary fields
+    const blogsData = blogs.map(blog => ({
+      _id: blog._id,
+      title: blog.title,
+      slug: blog.slug,
+      excerpt: blog.excerpt,
+      featuredImage: blog.featuredImage,
+      author: blog.author,
+      category: blog.category,
+      tags: blog.tags,
+      published: blog.published,
+      featured: blog.featured,
+      views: blog.views,
+      createdAt: blog.createdAt,
+      updatedAt: blog.updatedAt,
+      // Include content but it should be manageable
+      content: blog.content
+    }));
 
     res.json({
       success: true,
-      count: blogs.length,
-      data: blogs,
+      count: blogsData.length,
+      data: blogsData,
     });
   } catch (error) {
-    console.error('Blogs GET error:', error);
-    res.status(500).json({ error: 'Failed to fetch blogs' });
+    console.error('❌ Blogs GET error:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ error: 'Failed to fetch blogs: ' + error.message });
   }
 });
 

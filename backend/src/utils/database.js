@@ -216,9 +216,11 @@ async function getBlogs(filters = {}) {
     
     let blogsQuery = Blog.find(query).sort({ createdAt: -1 });
     
-    // Apply limit if specified
+    // Apply limit if specified, otherwise default to 50 to prevent huge responses
     if (filters.limit) {
       blogsQuery = blogsQuery.limit(parseInt(filters.limit));
+    } else {
+      blogsQuery = blogsQuery.limit(50); // Default limit to prevent huge responses
     }
     
     const blogs = await blogsQuery.exec();
