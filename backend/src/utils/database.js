@@ -214,7 +214,11 @@ async function getBlogs(filters = {}) {
       query.featured = filters.featured === 'true' || filters.featured === true;
     }
     
-    let blogsQuery = Blog.find(query).sort({ createdAt: -1 });
+    // Exclude content field for list queries to prevent huge responses
+    // Content is only needed for individual blog pages
+    let blogsQuery = Blog.find(query)
+      .select('-content') // Exclude content field
+      .sort({ createdAt: -1 });
     
     // Apply limit if specified, otherwise default to 50 to prevent huge responses
     if (filters.limit) {
@@ -224,7 +228,7 @@ async function getBlogs(filters = {}) {
     }
     
     const blogs = await blogsQuery.exec();
-    console.log(`✅ Retrieved ${blogs.length} blogs from database`);
+    console.log(`✅ Retrieved ${blogs.length} blogs from database (content excluded)`);
     return blogs;
   } catch (error) {
     console.error('❌ Error fetching blogs:', error.message);

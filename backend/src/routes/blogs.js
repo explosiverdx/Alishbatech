@@ -10,29 +10,12 @@ router.get('/', async (req, res) => {
     const blogs = await getBlogs(filters);
     console.log(`✅ Retrieved ${blogs.length} blogs`);
 
-    // Limit response size by selecting only necessary fields
-    const blogsData = blogs.map(blog => ({
-      _id: blog._id,
-      title: blog.title,
-      slug: blog.slug,
-      excerpt: blog.excerpt,
-      featuredImage: blog.featuredImage,
-      author: blog.author,
-      category: blog.category,
-      tags: blog.tags,
-      published: blog.published,
-      featured: blog.featured,
-      views: blog.views,
-      createdAt: blog.createdAt,
-      updatedAt: blog.updatedAt,
-      // Include content but it should be manageable
-      content: blog.content
-    }));
-
+    // Content is already excluded at database level, so we can use blogs directly
+    console.log(`📤 Sending ${blogs.length} blogs (content excluded at DB level)`);
     res.json({
       success: true,
-      count: blogsData.length,
-      data: blogsData,
+      count: blogs.length,
+      data: blogs,
     });
   } catch (error) {
     console.error('❌ Blogs GET error:', error);
