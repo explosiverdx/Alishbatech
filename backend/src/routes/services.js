@@ -12,6 +12,7 @@ router.get('/', (req, res) => {
         icon: 'desktop',
         price: 'Starting at $5,000',
         duration: '4-8 weeks',
+        demoUrl: '/demo/web-development',
         features: [
           'Responsive Design',
           'SEO Optimization',
@@ -27,6 +28,7 @@ router.get('/', (req, res) => {
         icon: 'mobile',
         price: 'Starting at $8,000',
         duration: '8-12 weeks',
+        demoUrl: '/demo/mobile-apps',
         features: [
           'iOS & Android Development',
           'Cross-platform Solutions',
@@ -42,6 +44,7 @@ router.get('/', (req, res) => {
         icon: 'cloud',
         price: 'Starting at $3,000',
         duration: '2-4 weeks',
+        demoUrl: '/demo/cloud-solutions',
         features: [
           'Cloud Migration',
           'Infrastructure Setup',
@@ -57,6 +60,7 @@ router.get('/', (req, res) => {
         icon: 'design',
         price: 'Starting at $2,500',
         duration: '2-4 weeks',
+        demoUrl: '/demo/ui-ux-design',
         features: [
           'User Research',
           'Wireframing & Prototyping',
@@ -72,6 +76,7 @@ router.get('/', (req, res) => {
         icon: 'speed',
         price: 'Starting at $1,500',
         duration: '1-2 weeks',
+        demoUrl: '/demo/performance-optimization',
         features: [
           'Speed Optimization',
           'SEO Improvement',
@@ -87,6 +92,7 @@ router.get('/', (req, res) => {
         icon: 'security',
         price: 'Starting at $500/month',
         duration: 'Ongoing',
+        demoUrl: '/demo/security-maintenance',
         features: [
           'Security Audits',
           'Regular Updates',

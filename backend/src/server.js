@@ -32,8 +32,27 @@ const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(helmet()); // Security headers
-app.use(cors()); // Enable CORS for all origins (configure for production)
-app.use(morgan('dev')); // Logging
+
+// CORS configuration - Allow both domains
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? [
+        'https://alishbatech.in',
+        'https://www.alishbatech.in',
+        'https://alishbatech.com',
+        'https://www.alishbatech.com',
+        'http://alishbatech.in',
+        'http://www.alishbatech.in',
+        'http://alishbatech.com',
+        'http://www.alishbatech.com'
+      ]
+    : true, // Allow all origins in development
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev')); // Logging
 app.use(bodyParser.json({ limit: '50mb' })); // Parse JSON bodies with increased limit for blog content
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' })); // Parse URL-encoded bodies with increased limit
 
