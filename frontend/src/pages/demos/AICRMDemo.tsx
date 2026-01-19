@@ -2,7 +2,7 @@ import { useState } from 'react';
 import '../../styles/demos/DemoPage.css';
 
 export default function AICRMDemo() {
-  const [leads, setLeads] = useState([
+  const [leads, _setLeads] = useState([
     { id: 1, name: 'John Smith', company: 'Tech Corp', status: 'New', score: 95, email: 'john@techcorp.com' },
     { id: 2, name: 'Sarah Johnson', company: 'Design Studio', status: 'Contacted', score: 87, email: 'sarah@design.com' },
     { id: 3, name: 'Mike Davis', company: 'StartupXYZ', status: 'Qualified', score: 92, email: 'mike@startup.com' },

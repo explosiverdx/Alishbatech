@@ -9,7 +9,7 @@ export default function FoodDeliveryDemo() {
     { id: 4, name: 'Taco Fiesta', rating: 4.6, deliveryTime: '15-20 min', image: '🌮', cuisine: 'Mexican' },
   ]);
 
-  const [cart, setCart] = useState([
+  const [cart, _setCart] = useState([
     { id: 1, name: 'Margherita Pizza', price: 12.99, quantity: 1 },
     { id: 2, name: 'Coca Cola', price: 2.99, quantity: 2 },
   ]);
