@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import ScrollToTop from './components/ScrollToTop';
 import HomePage from './pages/HomePage';
 import AdminLogin from './pages/admin/Login';
 import ProtectedRoute from './components/admin/ProtectedRoute';
@@ -12,6 +13,11 @@ import Admins from './pages/admin/Admins';
 import Profile from './pages/admin/Profile';
 import Blogs from './pages/admin/Blogs';
 import Blog from './pages/Blog';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsAndConditions from './pages/TermsAndConditions';
+import ShippingPolicy from './pages/ShippingPolicy';
+import ReturnsRefundsPolicy from './pages/ReturnsRefundsPolicy';
+import PricingCatalogue from './pages/PricingCatalogue';
 import WebDevelopmentDemo from './pages/demos/WebDevelopmentDemo';
 import MobileAppsDemo from './pages/demos/MobileAppsDemo';
 import CloudSolutionsDemo from './pages/demos/CloudSolutionsDemo';
@@ -41,11 +47,17 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Blog />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="/shipping-policy" element={<ShippingPolicy />} />
+          <Route path="/returns-refunds-policy" element={<ReturnsRefundsPolicy />} />
+          <Route path="/pricing-catalogue" element={<PricingCatalogue />} />
           
           {/* Demo Routes - Services */}
           <Route path="/demo/web-development" element={<WebDevelopmentDemo />} />

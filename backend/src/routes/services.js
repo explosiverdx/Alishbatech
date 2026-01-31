@@ -3,6 +3,7 @@ const router = express.Router();
 
 // GET /api/services - Get all services
 router.get('/', (req, res) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
   try {
     const services = [
       {
@@ -10,8 +11,8 @@ router.get('/', (req, res) => {
         title: 'Web Development',
         description: 'Custom websites and web applications built with modern frameworks like Next.js, React, and Node.js for optimal performance and user experience.',
         icon: 'desktop',
-        price: 'Starting at $5,000',
-        duration: '4-8 weeks',
+        price: 'Starting at ₹20,000',
+        duration: '3-5 weeks',
         demoUrl: '/demo/web-development',
         features: [
           'Responsive Design',
@@ -26,8 +27,8 @@ router.get('/', (req, res) => {
         title: 'Mobile Apps',
         description: 'Native and cross-platform mobile applications for iOS and Android that deliver seamless experiences across all devices.',
         icon: 'mobile',
-        price: 'Starting at $8,000',
-        duration: '8-12 weeks',
+        price: 'Starting at ₹50,000',
+        duration: '4-6 weeks',
         demoUrl: '/demo/mobile-apps',
         features: [
           'iOS & Android Development',
@@ -42,7 +43,7 @@ router.get('/', (req, res) => {
         title: 'Cloud Solutions',
         description: 'Scalable cloud infrastructure and deployment solutions using AWS, Azure, and Google Cloud for reliable and secure operations.',
         icon: 'cloud',
-        price: 'Starting at $3,000',
+        price: 'Starting at ₹40,000',
         duration: '2-4 weeks',
         demoUrl: '/demo/cloud-solutions',
         features: [
@@ -58,7 +59,7 @@ router.get('/', (req, res) => {
         title: 'UI/UX Design',
         description: 'Beautiful, intuitive interfaces designed with user-centered principles to create engaging digital experiences.',
         icon: 'design',
-        price: 'Starting at $2,500',
+        price: 'Starting at ₹30,000',
         duration: '2-4 weeks',
         demoUrl: '/demo/ui-ux-design',
         features: [
@@ -74,7 +75,7 @@ router.get('/', (req, res) => {
         title: 'Performance Optimization',
         description: 'Speed optimization, SEO, and performance tuning to ensure your digital products run at peak efficiency.',
         icon: 'speed',
-        price: 'Starting at $1,500',
+        price: 'Starting at ₹20,000',
         duration: '1-2 weeks',
         demoUrl: '/demo/performance-optimization',
         features: [
@@ -90,7 +91,7 @@ router.get('/', (req, res) => {
         title: 'Security & Maintenance',
         description: 'Comprehensive security audits, regular updates, and ongoing maintenance to keep your systems safe and up-to-date.',
         icon: 'security',
-        price: 'Starting at $500/month',
+        price: 'Starting at ₹10,000/month',
         duration: 'Ongoing',
         demoUrl: '/demo/security-maintenance',
         features: [

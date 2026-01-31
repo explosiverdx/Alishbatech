@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import '../styles/Footer.css';
 import { AlishbaTechLogo } from '../constants/assets';
 
@@ -43,10 +44,16 @@ export default function Footer() {
           <div>
             <h3 className="footer-section-title">Quick Links</h3>
             <ul className="footer-links">
-              <li><a href="#home">Home</a></li>
-              <li><a href="#services">Services</a></li>
-              <li><a href="#portfolio">Portfolio</a></li>
-              <li><a href="#about">About</a></li>
+              <li><Link to="/">Home</Link></li>
+              <li><Link to="/" state={{ scrollTo: 'services' }}>Services</Link></li>
+              <li><Link to="/" state={{ scrollTo: 'portfolio' }}>Portfolio</Link></li>
+              <li><Link to="/" state={{ scrollTo: 'about' }}>About Us</Link></li>
+              <li><Link to="/" state={{ scrollTo: 'contact' }}>Contact Us</Link></li>
+              <li><Link to="/pricing-catalogue">Pricing & Catalogue</Link></li>
+              <li><Link to="/privacy-policy">Privacy Policy</Link></li>
+              <li><Link to="/terms-and-conditions">Terms and Conditions</Link></li>
+              <li><Link to="/shipping-policy">Shipping Policy</Link></li>
+              <li><Link to="/returns-refunds-policy">Returns & Refunds Policy</Link></li>
             </ul>
           </div>
 

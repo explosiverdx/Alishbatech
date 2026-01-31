@@ -7,6 +7,7 @@ interface Service {
   title: string;
   description: string;
   icon: string;
+  price?: string;
   demoUrl?: string;
 }
 
@@ -175,6 +176,9 @@ export default function Services() {
               <div key={service.id} className="service-card">
                 <div className="service-icon">{getIcon(service.icon)}</div>
                 <h3 className="service-title">{service.title}</h3>
+                <p className="service-price" style={{ fontWeight: 600, color: '#059669', marginBottom: '0.5rem' }}>
+                  {service.price ?? 'Price on request'}
+                </p>
                 <p className="service-description">{service.description}</p>
                 {service.demoUrl && (
                   <button

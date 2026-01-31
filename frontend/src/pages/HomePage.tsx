@@ -12,21 +12,18 @@ export default function HomePage() {
   const location = useLocation();
 
   useEffect(() => {
-    // Handle hash scrolling when component mounts or hash changes
-    if (location.hash) {
-      const hash = location.hash.substring(1);
-      // Small delay to ensure DOM is ready
-      setTimeout(() => {
-        const element = document.getElementById(hash);
+    const scrollToId = location.hash?.replace('#', '') || (location.state as { scrollTo?: string })?.scrollTo;
+    if (scrollToId) {
+      const timer = setTimeout(() => {
+        const element = document.getElementById(scrollToId);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-      }, 100);
-    } else {
-      // Scroll to top if no hash
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 150);
+      return () => clearTimeout(timer);
     }
-  }, [location.hash]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [location.pathname, location.hash, location.state]);
 
   return (
     <main className="min-h-screen">

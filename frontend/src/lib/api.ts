@@ -110,9 +110,9 @@ export const projectsAPI = {
  * Services API
  */
 export const servicesAPI = {
-  // Get all services
+  // Get all services (cache-bust so price updates show immediately)
   getAll: async () => {
-    return apiRequest('/services');
+    return apiRequest(`/services?_=${Date.now()}`);
   },
 };
 

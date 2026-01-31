@@ -1,0 +1,81 @@
+/* Shared styles for Policy pages (Privacy, Terms, Shipping, Returns) */
+.policy-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.policy-main {
+  flex: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.policy-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #111827;
+}
+
+.policy-updated {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+.policy-content h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.policy-content h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+  color: #4b5563;
+}
+
+.policy-content p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+.policy-content ul {
+  margin: 0.5rem 0 1rem 1.5rem;
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+.policy-content li {
+  margin-bottom: 0.25rem;
+}
+
+.policy-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.policy-back:hover {
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .policy-main {
+    padding: 3rem 2rem 4rem;
+  }
+  .policy-title {
+    font-size: 2.25rem;
+  }
+}

@@ -45,3 +45,6 @@ out/
 
 # PowerShell scripts
 *.ps1
+
+# Admin update scripts (contains sensitive credentials)
+update-admin.js
